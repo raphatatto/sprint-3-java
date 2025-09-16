@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Objects;
 import java.util.Set;
 @Getter
 @Setter
@@ -39,4 +40,11 @@ public class Moto {
     private StatusMoto status = StatusMoto.VISTORIA;
 
     private Set<Alocacao> alocacoes;
+    @Override public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Moto)) return false;
+        Moto that = (Moto) o;
+        return Objects.equals(id, that.id);
+    }
+    @Override public int hashCode() { return Objects.hash(id); }
 }
