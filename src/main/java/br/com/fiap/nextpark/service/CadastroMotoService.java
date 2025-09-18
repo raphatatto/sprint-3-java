@@ -1,5 +1,6 @@
 package br.com.fiap.nextpark.service;
 
+import br.com.fiap.nextpark.dto.MotoCreateDTO;
 import br.com.fiap.nextpark.model.*;
 import br.com.fiap.nextpark.repository.AlocacaoRepository;
 import br.com.fiap.nextpark.repository.MotoRepository;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
-public class CadastroMotoService {
+public class    CadastroMotoService {
     private final MotoRepository motorepo;
     private final VagaRepository vagarepo;
     private final AlocacaoRepository alocacaorepo;
