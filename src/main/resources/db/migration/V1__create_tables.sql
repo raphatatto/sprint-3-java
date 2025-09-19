@@ -31,7 +31,6 @@ CREATE INDEX idx_aloc_moto ON alocacao(moto_id);
 CREATE INDEX idx_aloc_vaga ON alocacao(vaga_id);
 CREATE INDEX idx_aloc_ativa ON alocacao(ativa);
 
--- Usuários e perfis (Spring Security)
 CREATE TABLE usuario (
   id SERIAL PRIMARY KEY,
   username VARCHAR(50) NOT NULL UNIQUE,

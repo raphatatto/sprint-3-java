@@ -12,44 +12,55 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
-public class    CadastroMotoService {
-    private final MotoRepository motorepo;
-    private final VagaRepository vagarepo;
-    private final AlocacaoRepository alocacaorepo;
+public class CadastroMotoService {
 
-    public CadastroMotoService(MotoRepository m, VagaRepository v,  AlocacaoRepository a){
-        this.motorepo = m; this.vagarepo =v; this.alocacaorepo = a;
+    private final MotoRepository motoRepo;
+    private final VagaRepository vagaRepo;
+    private final AlocacaoRepository alocRepo;
+
+    public CadastroMotoService(MotoRepository m, VagaRepository v, AlocacaoRepository a) {
+        this.motoRepo = m;
+        this.vagaRepo = v;
+        this.alocRepo = a;
     }
-    public cadastrarEAlocar(MotoCreateDTO dto){
-        motorepo.fyndByPlacaIgnoreCase(dto.getPlaca()).ifPresent(moto -> {
-            throw new IllegalArgumentException("Essa placa ja esta cadastrada.");
+
+    @Transactional
+    public Moto cadastrarEAlocar(MotoCreateDTO dto) {
+        // 1) impedir placa duplicada
+        motoRepo.fyndByPlacaIgnoreCase(dto.getPlaca()).ifPresent(m -> {
+            throw new IllegalArgumentException("Essa placa já está cadastrada.");
         });
 
-        Vaga vaga = (dto.getCodigoVaga() !=null && !dto.getCodigoVaga().isBlank())
-        ? vagarepo.findByCodigoIgnoreCase(dto.getCodigoVaga())
-                .orElseThrow(()-> new EntityNotFoundException("Vaga " + dto.getCodigoVaga()+ "Vaga não encontrada."))
-        : vagarepo.findFirstByStatusOrderByCodigoAsc(StatusVaga.LIVRE)
-                .orElseThrow(()-> new IllegalStateException("Não existem vagas livres disponíveis"));
-        if (vaga.getStatus() !=StatusVaga.LIVRE) throw new IllegalArgumentException("A vaga não esta livre.");
+        // 2) escolher a vaga: por código (se informado) OU primeira LIVRE
+        Vaga vaga = (dto.getCodigoVaga() != null && !dto.getCodigoVaga().isBlank())
+                ? vagaRepo.findByCodigoIgnoreCase(dto.getCodigoVaga())
+                .orElseThrow(() -> new EntityNotFoundException("Vaga " + dto.getCodigoVaga() + " não encontrada."))
+                : vagaRepo.findFirstByStatusOrderByCodigoAsc(StatusVaga.LIVRE)
+                .orElseThrow(() -> new IllegalStateException("Não há vagas LIVRES disponíveis."));
+
+        if (vaga.getStatus() != StatusVaga.LIVRE) {
+            throw new IllegalStateException("A vaga " + vaga.getCodigo() + " não está LIVRE.");
+        }
+
+        // 3) criar a moto já como ALOCADA
+        Moto moto = new Moto();
+        moto.setPlaca(dto.getPlaca());
+        moto.setModelo(dto.getModelo());
+        moto.setCor(dto.getCor());           // <- precisa existir getCor() no DTO e setCor() na entidade
+        moto.setStatus(StatusMoto.ALOCADA);
+        moto = motoRepo.save(moto);
+
+        // 4) criar a alocação ativa e marcar a vaga como OCUPADA
+        Alocacao aloc = new Alocacao();
+        aloc.setMoto(moto);
+        aloc.setVaga(vaga);
+        aloc.setInicio(LocalDateTime.now());
+        aloc.setAtiva(true);
+        alocRepo.save(aloc);
+
+        vaga.setStatus(StatusVaga.OCUPADA);
+        vagaRepo.save(vaga);
+
+        return moto;
     }
-
-    Moto moto = new Moto();
-    moto.setPlaca(dto.getPlaca());
-    moto.setModelo(dto.getModelo());
-    moto.setCor(dto.getCor());
-    moto.setStatus(StatusMoto.ALOCADA);
-    moto.motoRepo.save(moto);
-
-    Alocacao aloc =  new Alocacao();
-    aloc.setMoto(moto);
-    aloc.setVaga(vaga)
-    aloc.setInicio(LocalDateTime.now());
-    aloc.setAtiva(true);
-    alocRepo.save(aloc);
-
-    vaga.setStatus(StatusVaga.OCUPADA);
-    vagaRepo.save(vaga);
-
-    return moto;
-
 }

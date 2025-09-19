@@ -5,7 +5,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
-
+@Getter
+@Setter
 public class MotoCreateDTO {
     @NotBlank
     @Size(min = 7, max = 8, message = "A placa deve ter entre 8 e 7 caracteres")
