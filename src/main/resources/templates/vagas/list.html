@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head :: head('Vagas')"></head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<h1>Vagas</h1>
+<p><a th:href="@{/vagas/nova}">+ Nova Vaga</a></p>
+
+<table>
+    <thead><tr><th>Código</th><th>Setor</th><th>Status/Disponível</th><th>Ações</th></tr></thead>
+    <tbody>
+    <tr th:each="v : ${vagas}">
+        <td th:text="${v.codigo}"></td>
+        <td th:text="${v.setor}"></td>
+        <!-- Se usar enum -->
+        <td th:text="${v.status}"></td>
+        <!-- Se usar boolean, troque por: <td th:text="${v.disponivel} ? 'LIVRE' : 'OCUPADA'"></td> -->
+        <td>
+            <a th:href="@{'/vagas/' + ${v.id} + '/editar'}">Editar</a>
+            <form th:action="@{'/vagas/' + ${v.id} + '/excluir'}" method="post" style="display:inline">
+                <button type="submit" onclick="return confirm('Excluir a vaga?')">Excluir</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

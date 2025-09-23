@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head :: head('Localizar')"></head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<h1>Localizar Moto pela Placa</h1>
+<form th:action="@{/localizar}" method="post">
+    <input name="placa" placeholder="ABC1D23" required>
+    <button type="submit">Buscar</button>
+</form>
+
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

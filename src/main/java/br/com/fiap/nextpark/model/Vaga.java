@@ -36,6 +36,9 @@ public class Vaga {
     @OneToMany(mappedBy = "vaga", cascade = CascadeType.ALL, orphanRemoval = false, fetch = FetchType.LAZY)
     private Set<Alocacao> alocacoes;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private StatusVaga status = StatusVaga.LIVRE;
     @Override public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Vaga)) return false;

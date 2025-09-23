@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head :: head('Alocações')"></head>
+<body>
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<h1>Alocações</h1>
+<table>
+    <thead><tr><th>Placa</th><th>Vaga</th><th>Início</th><th>Fim</th><th>Ativa?</th><th>Ações</th></tr></thead>
+    <tbody>
+    <tr th:each="a : ${alocacoes}">
+        <td th:text="${a.moto.placa}"></td>
+        <td th:text="${a.vaga.codigo}"></td>
+        <td th:text="${#temporals.format(a.inicio, 'dd/MM/yyyy HH:mm')}"></td>
+        <td th:text="${a.fim != null ? #temporals.format(a.fim, 'dd/MM/yyyy HH:mm') : '-'}"></td>
+        <td th:text="${a.ativa}"></td>
+        <td>
+            <form th:if="${a.ativa}" th:action="@{'/alocacoes/' + ${a.id} + '/encerrar'}" method="post" style="display:inline">
+                <button type="submit">Encerrar</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>
