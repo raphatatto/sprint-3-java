@@ -14,10 +14,16 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "ALOCACAO")
 public class Alocacao {
-
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @SequenceGenerator(
+            name = "alocacao_seq",
+            sequenceName = "ALOCACAO_SEQ",
+            allocationSize = 1
+    )
+        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "alocacao_seq")
         private Long id;
 
         @NotNull
