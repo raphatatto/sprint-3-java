@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/springsecurity"
+      th:fragment="layout(content, title, active)">
 <head>
-    <meta charset="UTF-8" />
-    <title th:text="${pageTitle} ?: 'NextPark'">NextPark</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8"/>
+    <title th:text="${title} ?: 'NextPark'">NextPark</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <style>
         :root { --bg:#0b0e11; --card:#151a21; --muted:#9aa4af; --accent:#3b82f6; --danger:#ef4444; --ok:#10b981; }
         body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu; background:var(--bg); color:#e5e7eb; }
@@ -11,45 +13,64 @@
         a { color:#cbd5e1; text-decoration:none; }
         nav a { margin-right:14px; padding:6px 10px; border-radius:8px; }
         nav a.active, nav a:hover { background:var(--card); }
-        .container { max-width:980px; margin:28px auto; padding:0 16px; }
-        .card { background:var(--card); border:1px solid #1f2937; border-radius:12px; padding:16px; }
-        .grid { display:grid; gap:14px; }
-        .table { width:100%; border-collapse:collapse; font-size:14px; }
-        .table th, .table td { padding:10px 12px; border-bottom:1px solid #1f2937; }
-        .table th { text-align:left; color:var(--muted); font-weight:600; }
-        .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-        input, select { background:#111827; color:#e5e7eb; border:1px solid #293241; border-radius:10px; padding:10px 12px; }
-        button, .btn { background:var(--accent); color:white; border:none; padding:10px 14px; border-radius:10px; cursor:pointer; }
-        .btn.secondary { background:#374151; }
+        .container { max-width:1100px; margin:24px auto; padding:0 16px; }
+        .card { background:var(--card); border-radius:14px; padding:18px; box-shadow:0 4px 20px #0003; }
+        .btn { display:inline-block; padding:8px 12px; border-radius:10px; background:var(--accent); color:white; border:0; cursor:pointer; }
         .btn.danger { background:var(--danger); }
-        .badge { padding:4px 10px; border-radius:999px; font-size:12px; }
-        .badge.ok { background:#0f766e; }
-        .badge.warn { background:#7c2d12; }
-        .muted { color:var(--muted); }
+        .btn.ok { background:var(--ok); }
+        table { width:100%; border-collapse:collapse; }
+        th,td { padding:10px; border-bottom:1px solid #223; }
         form.inline { display:inline; }
+        .right { float:right; }
+        input, select { padding:8px 10px; border-radius:10px; border:1px solid #253; background:#0f141b; color:#e5e7eb; }
+        label { display:block; margin:8px 0; }
+        .alert {margin:12px 0; padding:10px 12px; border-radius:10px;}
+        .alert.ok {background:#0f3; color:#072;}
+        .alert.danger {background:#fca5a5; color:#58151a;}
+        .err {display:block; color:#fca5a5; margin-top:4px;}
     </style>
 </head>
-<body th:fragment="body(content)">
+<body>
 <header>
+    <div class="container">
+        <strong>NextPark</strong>
+        <nav style="margin-top:8px">
+            <a th:href="@{/}" th:classappend="${active}=='home' ? ' active'">Home</a>
 
-    <div class="row" style="justify-content:space-between">
-        <strong><a th:href="@{/}">NextPark</a></strong>
-        <nav>
-            <a th:href="@{/vagas}" th:classappend="${active}=='vagas' ? ' active'">Vagas</a>
-            <a th:href="@{/alocacoes}" th:classappend="${active}=='aloc' ? ' active'">Alocações</a>
-            <a th:href="@{/localizar}" th:classappend="${active}=='localizar' ? ' active'">Localizar</a>
-            <a th:href="@{/motos/novo}" th:classappend="${active}=='motos' ? ' active'">Nova Moto</a>
+            <!-- OPERATOR/MANAGER -->
+            <a th:href="@{/localizar}" th:classappend="${active}=='localizar' ? ' active'"
+               sec:authorize="hasAnyRole('OPERATOR','MANAGER')">Localizar</a>
+            <a th:href="@{/motos/novo}" th:classappend="${active}=='motos' ? ' active'"
+               sec:authorize="hasAnyRole('OPERATOR','MANAGER')">Cadastrar Moto</a>
+            <a th:href="@{/alocacoes}" th:classappend="${active}=='alocacoes' ? ' active'"
+               sec:authorize="hasAnyRole('OPERATOR','MANAGER')">Alocações</a>
+
+            <!-- Somente MANAGER -->
+            <a th:href="@{/vagas}" th:classappend="${active}=='vagas' ? ' active'"
+               sec:authorize="hasRole('MANAGER')">Vagas</a>
+
+            <span class="right">
+        <a th:href="@{/login}" sec:authorize="!isAuthenticated()">Login</a>
+        <a th:href="@{/auth/registro}" sec:authorize="!isAuthenticated()">Registrar</a>
+        <span sec:authorize="isAuthenticated()">
+          Olá, <span sec:authentication="name"></span> |
+          <a th:href="@{/logout}">Sair</a>
+        </span>
+      </span>
         </nav>
     </div>
 </header>
 
 <main class="container">
-    <div th:replace="~{fragments/_flash :: flash}"></div>
-    <div th:insert="${content}">Conteúdo</div>
+    <div th:if="${ok}" class="alert ok" th:text="${ok}"></div>
+    <div th:if="${erro}" class="alert danger" th:text="${erro}"></div>
+    <div class="card">
+        <div th:insert="${content}"></div>
+    </div>
 </main>
 
 <footer>
-    <span class="muted">© NextPark</span>
+    <div class="container">© NextPark</div>
 </footer>
 </body>
 </html>

@@ -26,10 +26,9 @@ public class DesalocarService {
         Alocacao aloc = alocRepo.findById(alocacaoId)
                 .orElseThrow(() -> new EntityNotFoundException("Alocação não encontrada"));
 
-        if (!aloc.isAtiva()) return; // já encerrada
 
         aloc.setFim(LocalDateTime.now());
-        aloc.setAtiva(false);
+        aloc.setAtiva("N");
         alocRepo.save(aloc);
 
         // liberar a vaga

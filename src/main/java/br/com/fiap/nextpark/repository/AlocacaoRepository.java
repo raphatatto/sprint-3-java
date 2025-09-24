@@ -6,5 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface AlocacaoRepository extends JpaRepository<Alocacao, Long> {
-    Optional<Alocacao> findTopByMotoIdAndAtivaTrueOrderByInicioDesc(Long motoId);
+
+    Optional<Alocacao> findTopByMotoIdAndAtivaOrderByInicioDesc(Long motoId, String ativa);
+
+    default Optional<Alocacao> findTopAtivaByMoto(Long motoId) {
+        return findTopByMotoIdAndAtivaOrderByInicioDesc(motoId, "S");
+    }
 }

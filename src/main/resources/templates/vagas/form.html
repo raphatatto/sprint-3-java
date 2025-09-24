@@ -1,38 +1,22 @@
 <!DOCTYPE html>
-<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
-<body th:with="pageTitle=${vaga.id} != null ? 'Editar Vaga' : 'Nova Vaga',
-               active='vagas', content='this :: content'"
-      th:replace="~{fragments/_layout :: body(~{::body})}">
-<div th:fragment="content" class="grid">
-    <h2 th:text="${vaga.id} != null ? 'Editar Vaga' : 'Nova Vaga'">Nova Vaga</h2>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/_layout :: layout(
+        content=~{::content},
+        title=${vaga.id} != null ? 'Editar Vaga' : 'Nova Vaga',
+        active='vagas'
+      )}">
+<th:block th:fragment="content" th:with="editar=${vaga.id} != null">
+    <h2 th:text="${editar} ? 'Editar Vaga' : 'Nova Vaga'">Nova Vaga</h2>
 
-    <div class="card">
-        <form th:action="${vaga.id} != null ? @{'/vagas/' + ${vaga.id}} : @{/vagas}"
-              th:object="${vaga}" method="post" class="grid">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-
-            <label>Código
-                <input th:field="*{codigo}" placeholder="Ex.: A01" required/>
-            </label>
-
-            <label>Setor
-                <input th:field="*{setor}" placeholder="Ex.: Norte"/>
-            </label>
-
-            <label>Status
-              <select th:field="*{status}">
-                <option th:value="LIVRE">LIVRE</option>
-                <option th:value="OCUPADA">OCUPADA</option>
-              </select>
-            </label>
-
-
-            <div class="row">
-                <a class="btn secondary" th:href="@{/vagas}">Cancelar</a>
-                <button type="submit" class="btn">Salvar</button>
-            </div>
-        </form>
-    </div>
-</div>
-</body>
+    <form th:action="${editar} ? @{'/vagas/' + ${vaga.id}} : @{/vagas}" method="post" th:object="${vaga}">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <label>Código
+            <input th:field="*{codigo}" required/>
+        </label>
+        <label>Setor
+            <input th:field="*{setor}" required/>
+        </label>
+        <button class="btn ok" type="submit" th:text="${editar} ? 'Atualizar' : 'Criar'">Criar</button>
+    </form>
+</th:block>
 </html>

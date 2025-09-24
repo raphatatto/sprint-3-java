@@ -39,13 +39,16 @@ public class Alocacao {
         @Column
         private LocalDateTime fim;
 
-        @Column(nullable = false)
-        private boolean ativa = true;
+        @Column(name = "ATIVA", nullable = false, length = 1)
+        private String ativa = "S";
 
         public void encerrar(LocalDateTime fim) {
             this.fim = fim != null ? fim : LocalDateTime.now();
-            this.ativa = false;
+            this.ativa = "S";
         }
+
+        @Transient public boolean isAtivaBool() { return "S".equalsIgnoreCase(ativa); }
+        public void setAtivaBool(boolean v) { this.ativa = v ? "S" : "N"; }
 
         @Override
         public boolean equals(Object o) {
@@ -54,6 +57,7 @@ public class Alocacao {
             Alocacao that = (Alocacao) o;
             return Objects.equals(id, that.id);
         }
+
 
         @Override
         public int hashCode() {

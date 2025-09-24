@@ -8,7 +8,7 @@ public class RegistroDTO {
     @NotBlank @Size(min = 3, max = 50)
     private String username;
 
-    @NotBlank @Size(min = 6, max = 60) // senha crua (antes de criptografar)
+    @NotBlank @Size(min = 6, max = 60)
     private String password;
 
     // getters/setters
