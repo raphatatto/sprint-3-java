@@ -51,10 +51,6 @@ public class VagaController {
         return vagaRepo.findById(id).map(v -> {
             v.setCodigo(form.getCodigo());
             v.setSetor(form.getSetor());
-            // se usar enum:
-            // v.setStatus(form.getStatus());
-            // se usar boolean:
-            // v.setDisponivel(form.isDisponivel());
             vagaRepo.save(v);
             return "redirect:/vagas";
         }).orElse("redirect:/vagas");

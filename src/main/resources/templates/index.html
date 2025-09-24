@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<body th:with="pageTitle='Home', active='home', content='this :: content'"
+      th:replace="~{fragments/_layout :: body(~{::body})}">
+<div th:fragment="content">
+    <div class="grid">
+        <div class="card">
+            <h2 style="margin:0 0 8px 0;">Bem-vindo ao NextPark</h2>
+            <p class="muted">Escolha uma opção no menu acima.</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

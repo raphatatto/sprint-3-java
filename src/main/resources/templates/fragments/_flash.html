@@ -1,0 +1,9 @@
+<!— exibe mensagens vindas de RedirectAttributes, se você usar —>
+<div xmlns:th="http://www.thymeleaf.org" th:fragment="flash">
+    <div th:if="${param.msg}" class="card" style="border-left:4px solid var(--ok); margin-bottom:16px;">
+        <strong>OK:</strong> <span th:text="${param.msg}"></span>
+    </div>
+    <div th:if="${param.err}" class="card" style="border-left:4px solid var(--danger); margin-bottom:16px;">
+        <strong>Erro:</strong> <span th:text="${param.err}"></span>
+    </div>
+</div>

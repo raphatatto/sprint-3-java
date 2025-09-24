@@ -27,7 +27,7 @@ public class CadastroMotoService {
     @Transactional
     public Moto cadastrarEAlocar(MotoCreateDTO dto) {
         // 1) impedir placa duplicada
-        motoRepo.fyndByPlacaIgnoreCase(dto.getPlaca()).ifPresent(m -> {
+        motoRepo.findByPlacaIgnoreCase(dto.getPlaca()).ifPresent(m -> {
             throw new IllegalArgumentException("Essa placa já está cadastrada.");
         });
 

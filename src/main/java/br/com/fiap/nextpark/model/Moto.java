@@ -9,15 +9,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "moto")
 public class Moto {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @NotBlank
@@ -39,7 +43,8 @@ public class Moto {
     @Column(nullable = false, length = 20)
     private StatusMoto status = StatusMoto.VISTORIA;
 
-    private Set<Alocacao> alocacoes;
+    @OneToMany(mappedBy = "moto", cascade = CascadeType.ALL, orphanRemoval = false, fetch = FetchType.LAZY)
+    private Set<Alocacao> alocacoes = new HashSet<>();
     @Override public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Moto)) return false;

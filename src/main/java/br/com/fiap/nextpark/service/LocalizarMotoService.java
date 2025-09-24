@@ -17,9 +17,8 @@ public class LocalizarMotoService {
         this.alocRepo = a;
     }
 
-    /** Retorna a alocação ATUAL (ativa) pela placa; lança exceção se a placa não existir. */
     public Alocacao localizacaoAtualPorPlaca(String placa) {
-        Moto moto = motoRepo.fyndByPlacaIgnoreCase(placa)  // <- nome correto e sem typos
+        Moto moto = motoRepo.findByPlacaIgnoreCase(placa)  // <- nome correto e sem typos
                 .orElseThrow(() -> new IllegalArgumentException("Placa não encontrada."));
 
         return alocRepo.findTopByMotoIdAndAtivaTrueOrderByInicioDesc(moto.getId())

@@ -1,21 +1,35 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/head :: head('Resultado')"></head>
-<body>
-<div th:replace="fragments/navbar :: navbar"></div>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<body th:with="pageTitle='Resultado', active='localizar', content='this :: content'"
+      th:replace="~{fragments/_layout :: body(~{::body})}">
+<div th:fragment="content" class="grid">
 
-<h1 th:text="'Resultado para ' + ${placa}"></h1>
+    <h2>Resultado da busca</h2>
 
-<div th:if="${alocacao == null}">
-    <p>Nenhuma alocação ativa encontrada.</p>
+    <div class="card">
+        <p><strong>Placa:</strong> <span th:text="${placa}">AAA0A00</span></p>
+
+        <div th:if="${alocacao != null}">
+            <p><strong>Vaga:</strong> <span th:text="${alocacao.vaga.codigo}">A01</span></p>
+            <p><strong>Início:</strong> <span th:text="${#temporals.format(alocacao.inicio, 'dd/MM/yyyy HH:mm')}"></span></p>
+            <p><strong>Status:</strong> <span class="badge ok">ALOCADA</span></p>
+
+            <form class="inline" th:action="@{|/alocacoes/${alocacao.id}/encerrar|}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn danger">Liberar Vaga</button>
+            </form>
+        </div>
+
+        <div th:if="${alocacao == null}">
+            <p><strong>Status:</strong> <span class="badge warn">NÃO ALOCADA</span></p>
+            <a class="btn" th:href="@{/motos/novo}">Cadastrar & Alocar</a>
+        </div>
+    </div>
+
+    <div>
+        <a class="btn secondary" th:href="@{/localizar}">Nova busca</a>
+    </div>
+
 </div>
-<div th:if="${alocacao != null}">
-    <p><b>Vaga:</b> <span th:text="${alocacao.vaga.codigo}"></span></p>
-    <p><b>Desde:</b> <span th:text="${#temporals.format(alocacao.inicio, 'dd/MM/yyyy HH:mm')}"></span></p>
-</div>
-
-<a th:href="@{/localizar}">Nova busca</a>
-
-<div th:replace="fragments/footer :: footer"></div>
 </body>
 </html>

@@ -25,7 +25,6 @@ public class AlocacaoController {
         return "alocacoes/list";
     }
 
-    // encerra a alocação (libera a vaga)
     @PostMapping("/{id}/encerrar")
     public String encerrar(@PathVariable Long id) {
         desalocarService.encerrarAlocacao(id);

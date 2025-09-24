@@ -1,28 +1,39 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/head :: head('Alocações')"></head>
-<body>
-<div th:replace="fragments/navbar :: navbar"></div>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<body th:with="pageTitle='Alocações', active='aloc', content='this :: content'"
+      th:replace="~{fragments/_layout :: body(~{::body})}">
+<div th:fragment="content" class="grid">
+    <h2 style="margin:0;">Alocações</h2>
 
-<h1>Alocações</h1>
-<table>
-    <thead><tr><th>Placa</th><th>Vaga</th><th>Início</th><th>Fim</th><th>Ativa?</th><th>Ações</th></tr></thead>
-    <tbody>
-    <tr th:each="a : ${alocacoes}">
-        <td th:text="${a.moto.placa}"></td>
-        <td th:text="${a.vaga.codigo}"></td>
-        <td th:text="${#temporals.format(a.inicio, 'dd/MM/yyyy HH:mm')}"></td>
-        <td th:text="${a.fim != null ? #temporals.format(a.fim, 'dd/MM/yyyy HH:mm') : '-'}"></td>
-        <td th:text="${a.ativa}"></td>
-        <td>
-            <form th:if="${a.ativa}" th:action="@{'/alocacoes/' + ${a.id} + '/encerrar'}" method="post" style="display:inline">
-                <button type="submit">Encerrar</button>
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-<div th:replace="fragments/footer :: footer"></div>
+    <div class="card">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>ID</th><th>Placa</th><th>Vaga</th><th>Início</th><th>Fim</th><th>Status</th><th>Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="a : ${alocacoes}">
+                <td th:text="${a.id}">1</td>
+                <td th:text="${a.moto != null ? a.moto.placa : '-'}">AAA1234</td>
+                <td th:text="${a.vaga != null ? a.vaga.codigo : '-'}">A01</td>
+                <td th:text="${#temporals.format(a.inicio, 'dd/MM/yyyy HH:mm')}">01/01/2025 10:00</td>
+                <td th:text="${a.fim != null ? #temporals.format(a.fim, 'dd/MM/yyyy HH:mm') : '-'}">-</td>
+                <td>
+          <span th:text="${a.ativa} ? 'ATIVA' : 'ENCERRADA'"
+                th:classappend="${a.ativa} ? 'badge ok' : 'badge warn'"
+                class="badge">ATIVA</span>
+                </td>
+                <td>
+                    <form class="inline" th:if="${a.ativa}" th:action="@{|/alocacoes/${a.id}/encerrar|}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="btn danger">Encerrar</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 </body>
 </html>

@@ -17,13 +17,8 @@ import java.util.Objects;
 @Entity
 @Table(name = "ALOCACAO")
 public class Alocacao {
-    @Id
-    @SequenceGenerator(
-            name = "alocacao_seq",
-            sequenceName = "ALOCACAO_SEQ",
-            allocationSize = 1
-    )
-        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "alocacao_seq")
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
         @NotNull

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<body th:with="pageTitle='Cadastro', active='home', content='this :: content'"
+      th:replace="~{fragments/_layout :: body(~{::body})}">
+<div th:fragment="content" class="grid">
+
+    <h2>Criar conta</h2>
+
+    <div class="card">
+        <form th:action="@{/auth/registro}" th:object="${form}" method="post" class="grid">
+            <div th:if="${erro}" class="muted" th:text="${erro}"></div>
+
+            <label>Usuário
+                <input th:field="*{username}" required minlength="3" maxlength="50"/>
+                <small class="muted" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></small>
+            </label>
+
+            <label>Senha
+                <input type="password" th:field="*{password}" required minlength="6" maxlength="60"/>
+                <small class="muted" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
+            </label>
+
+            <div class="row">
+                <a class="btn secondary" th:href="@{/login}">Voltar</a>
+                <button type="submit" class="btn">Registrar</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+</body>
+</html>

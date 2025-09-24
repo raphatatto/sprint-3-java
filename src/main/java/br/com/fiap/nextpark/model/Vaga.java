@@ -15,6 +15,8 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "vaga")
 public class Vaga {
 
     @Id

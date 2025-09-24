@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<body th:with="pageTitle='Login', active='home', content='this :: content'"
+      th:replace="~{fragments/_layout :: body(~{::body})}">
+<div th:fragment="content" class="grid">
+
+    <h2>Login</h2>
+
+    <div class="card">
+        <form th:action="@{/login}" method="post" class="grid">
+            <div th:if="${param.logout}" class="muted">Você saiu da sessão.</div>
+            <div th:if="${param.error}" class="muted">Usuário ou senha inválidos.</div>
+            <div th:if="${param.msg}" class="muted" th:text="${param.msg}"></div>
+
+            <label>Usuário
+                <input name="username" required />
+            </label>
+
+            <label>Senha
+                <input type="password" name="password" required />
+            </label>
+
+            <div class="row">
+                <a class="btn secondary" th:href="@{/auth/registro}">Criar conta</a>
+                <button type="submit" class="btn">Entrar</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+</body>
+</html>
