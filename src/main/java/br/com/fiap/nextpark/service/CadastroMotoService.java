@@ -32,9 +32,9 @@ public class CadastroMotoService {
         });
 
         // 2) escolher a vaga: por código (se informado) OU primeira LIVRE
-        Vaga vaga = (dto.getCodigoVaga() != null && !dto.getCodigoVaga().isBlank())
-                ? vagaRepo.findByCodigoIgnoreCase(dto.getCodigoVaga())
-                .orElseThrow(() -> new EntityNotFoundException("Vaga " + dto.getCodigoVaga() + " não encontrada."))
+        Vaga vaga = (dto.getVagaCodigo() != null && !dto.getVagaCodigo().isBlank())
+                ? vagaRepo.findByCodigoIgnoreCase(dto.getVagaCodigo())
+                .orElseThrow(() -> new EntityNotFoundException("Vaga " + dto.getVagaCodigo() + " não encontrada."))
                 : vagaRepo.findFirstByStatusOrderByCodigoAsc(StatusVaga.LIVRE)
                 .orElseThrow(() -> new IllegalStateException("Não há vagas LIVRES disponíveis."));
 
@@ -46,7 +46,7 @@ public class CadastroMotoService {
         Moto moto = new Moto();
         moto.setPlaca(dto.getPlaca());
         moto.setModelo(dto.getModelo());
-        moto.setCor(dto.getCor());           // <- precisa existir getCor() no DTO e setCor() na entidade
+        moto.setCor(dto.getCor());
         moto.setStatus(StatusMoto.ALOCADA);
         moto = motoRepo.save(moto);
 
@@ -55,7 +55,7 @@ public class CadastroMotoService {
         aloc.setMoto(moto);
         aloc.setVaga(vaga);
         aloc.setInicio(LocalDateTime.now());
-        aloc.setAtiva(true);
+        aloc.setAtiva("S");
         alocRepo.save(aloc);
 
         vaga.setStatus(StatusVaga.OCUPADA);

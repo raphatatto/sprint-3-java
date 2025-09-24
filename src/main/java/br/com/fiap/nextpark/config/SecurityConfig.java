@@ -32,9 +32,6 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http, DaoAuthenticationProvider provider) throws Exception {
         http.authenticationProvider(provider);
-
-        http.csrf(csrf -> csrf.disable()); // se for usar form POST com Thymeleaf, pode habilitar e incluir o token
-
         http.authorizeHttpRequests(auth -> auth
                 // público
                 .requestMatchers("/login", "/auth/registro", "/css/**", "/js/**").permitAll()

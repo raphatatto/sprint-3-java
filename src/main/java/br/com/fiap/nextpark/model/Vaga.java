@@ -28,9 +28,6 @@ public class Vaga {
     @Column(nullable = false, length = 10)
     private String codigo;
 
-    @Column(nullable = false)
-    private boolean disponivel = true;
-
     @Size(max = 20)
     @Column(length = 20)
     private String setor;
@@ -41,6 +38,7 @@ public class Vaga {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private StatusVaga status = StatusVaga.LIVRE;
+
     @Override public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Vaga)) return false;

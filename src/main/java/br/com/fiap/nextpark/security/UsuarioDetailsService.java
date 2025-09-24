@@ -22,7 +22,7 @@ public class UsuarioDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
         return org.springframework.security.core.userdetails.User
                 .withUsername(u.getUsername())
-                .password(u.getPassword())     // já deve estar BCRYPT
+                .password(u.getPassword())
                 .roles(u.getRole().name().replace("ROLE_", "")) // ROLE_MANAGER -> MANAGER
                 .disabled(!u.isEnabled())
                 .build();
