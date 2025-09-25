@@ -1,6 +1,7 @@
 package br.com.fiap.nextpark.service;
 
 import br.com.fiap.nextpark.model.Alocacao;
+import br.com.fiap.nextpark.model.StatusMoto;
 import br.com.fiap.nextpark.model.StatusVaga; // se estiver usando enum
 import br.com.fiap.nextpark.repository.AlocacaoRepository;
 import br.com.fiap.nextpark.repository.VagaRepository;
@@ -26,26 +27,20 @@ public class DesalocarService {
         Alocacao aloc = alocRepo.findById(alocacaoId)
                 .orElseThrow(() -> new EntityNotFoundException("Alocação não encontrada"));
 
-
-        aloc.setFim(LocalDateTime.now());
-        aloc.setAtiva("N");
+        // encerra alocação
+        aloc.encerrar(LocalDateTime.now());
         alocRepo.save(aloc);
 
-        // liberar a vaga
+        // libera a vaga
         if (aloc.getVaga() != null) {
-            if (aloc.getVaga().getClass().getSimpleName().equals("Vaga")) {
-                // se usa enum:
-                try { aloc.getVaga().getClass().getMethod("setStatus", StatusVaga.class);
-                    aloc.getVaga().getClass().getMethod("setStatus", StatusVaga.class)
-                            .invoke(aloc.getVaga(), StatusVaga.LIVRE);
-                } catch (Exception ignore) {
-                    // se não usa enum, troca por boolean:
-                    try { aloc.getVaga().getClass().getMethod("setDisponivel", boolean.class)
-                            .invoke(aloc.getVaga(), true);
-                    } catch (Exception ignored) {}
-                }
-            }
+            aloc.getVaga().setStatus(StatusVaga.LIVRE);
             vagaRepo.save(aloc.getVaga());
+        }
+
+        // (opcional) atualizar status da moto para VISTORIA
+        if (aloc.getMoto() != null) {
+            aloc.getMoto().setStatus(StatusMoto.VISTORIA);
+            // se tiver MotoRepository injetado, salve também
         }
     }
 }

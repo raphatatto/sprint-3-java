@@ -24,7 +24,7 @@ public class Usuario {
 
     @NotBlank
     @Size(min = 3, max = 50)
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 50, unique = true)
     private String username;
 
     @NotBlank

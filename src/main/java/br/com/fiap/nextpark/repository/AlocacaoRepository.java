@@ -12,4 +12,8 @@ public interface AlocacaoRepository extends JpaRepository<Alocacao, Long> {
     default Optional<Alocacao> findTopAtivaByMoto(Long motoId) {
         return findTopByMotoIdAndAtivaOrderByInicioDesc(motoId, "S");
     }
+
+    boolean existsByMotoIdAndAtiva(Long motoId, String ativa);
+    boolean existsByVagaIdAndAtiva(Long vagaId, String ativa);
+
 }

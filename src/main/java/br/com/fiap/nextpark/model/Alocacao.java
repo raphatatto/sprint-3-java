@@ -44,7 +44,7 @@ public class Alocacao {
 
         public void encerrar(LocalDateTime fim) {
             this.fim = fim != null ? fim : LocalDateTime.now();
-            this.ativa = "S";
+            this.ativa = "N";
         }
 
         @Transient public boolean isAtivaBool() { return "S".equalsIgnoreCase(ativa); }

@@ -1,9 +1,9 @@
-// br/com/fiap/nextpark/config/SecurityConfig.java
 package br.com.fiap.nextpark.config;
 
 import br.com.fiap.nextpark.security.UsuarioDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -13,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@EnableMethodSecurity // habilita @PreAuthorize
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
@@ -23,7 +23,7 @@ public class SecurityConfig {
 
     @Bean
     DaoAuthenticationProvider authProvider(UsuarioDetailsService uds, PasswordEncoder enc) {
-        DaoAuthenticationProvider p = new DaoAuthenticationProvider();
+        var p = new DaoAuthenticationProvider();
         p.setUserDetailsService(uds);
         p.setPasswordEncoder(enc);
         return p;
@@ -32,39 +32,50 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http, DaoAuthenticationProvider provider) throws Exception {
         http.authenticationProvider(provider);
+
+        // NÃO ignore o CSRF (seus formulários já têm o _csrf escondido)
+        http.csrf(csrf -> {}); // mantém padrão
+
         http.authorizeHttpRequests(auth -> auth
                 // público
                 .requestMatchers("/login", "/auth/registro", "/css/**", "/js/**").permitAll()
 
-                // OPERATOR pode: ver/cadastrar motos e localizar
-                .requestMatchers("/motos/**").hasAnyRole("OPERATOR", "MANAGER")     // GET/POST de motos
-                .requestMatchers("/localizar/**").hasAnyRole("OPERATOR", "MANAGER") // GET/POST localizar
+                // permitir OPERATOR e MANAGER usarem as telas de motos e localizar
+                .requestMatchers("/motos/**", "/localizar/**").hasAnyRole("OPERATOR","MANAGER")
 
-                // alocações: listar pode (OPERATOR), encerrar só MANAGER
-                .requestMatchers("/alocacoes").hasAnyRole("OPERATOR", "MANAGER")
-                .requestMatchers("/alocacoes/*/encerrar").hasRole("MANAGER")
+                // deixe claro que os POSTs de excluir/atualizar também são permitidos
+                .requestMatchers(HttpMethod.POST, "/motos/*/excluir", "/motos/*/atualizar")
+                .hasAnyRole("OPERATOR","MANAGER")
 
-                // vagas (CRUD) – apenas MANAGER
+                // alocações: listar (OPERATOR/MANAGER), encerrar só MANAGER
+                .requestMatchers("/alocacoes").hasAnyRole("OPERATOR","MANAGER")
+                .requestMatchers(HttpMethod.POST, "/alocacoes/*/encerrar").hasRole("MANAGER")
+
+                // vagas somente MANAGER
                 .requestMatchers("/vagas/**").hasRole("MANAGER")
 
-                // qualquer outra rota: autenticado
+                // resto autenticado
                 .anyRequest().authenticated()
         );
 
-        http.formLogin(form -> form
+        // Em vez de Whitelabel quando nega acesso, redireciona com mensagem
+        http.exceptionHandling(ex -> ex
+                .accessDeniedHandler((req, res, e) -> res.sendRedirect("/motos?err=Acesso+negado"))
+        );
+
+        http.formLogin(f -> f
                 .loginPage("/login")
                 .defaultSuccessUrl("/", true)
                 .permitAll()
         );
 
-        http.logout(logout -> logout
+        http.logout(l -> l
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout")
                 .permitAll()
         );
 
-        http.httpBasic(Customizer.withDefaults()); // útil para testar via curl
-
+        http.httpBasic(Customizer.withDefaults());
         return http.build();
     }
 }

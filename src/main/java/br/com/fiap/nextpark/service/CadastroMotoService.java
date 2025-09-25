@@ -32,9 +32,9 @@ public class CadastroMotoService {
         });
 
         // 2) escolher a vaga: por código (se informado) OU primeira LIVRE
-        Vaga vaga = (dto.getVagaCodigo() != null && !dto.getVagaCodigo().isBlank())
-                ? vagaRepo.findByCodigoIgnoreCase(dto.getVagaCodigo())
-                .orElseThrow(() -> new EntityNotFoundException("Vaga " + dto.getVagaCodigo() + " não encontrada."))
+        Vaga vaga = (dto.getCodigoVaga() != null && !dto.getCodigoVaga().isBlank())
+                ? vagaRepo.findByCodigoIgnoreCase(dto.getCodigoVaga())
+                .orElseThrow(() -> new EntityNotFoundException("Vaga " + dto.getCodigoVaga() + " não encontrada."))
                 : vagaRepo.findFirstByStatusOrderByCodigoAsc(StatusVaga.LIVRE)
                 .orElseThrow(() -> new IllegalStateException("Não há vagas LIVRES disponíveis."));
 
@@ -44,12 +44,11 @@ public class CadastroMotoService {
 
         // 3) criar a moto já como ALOCADA
         Moto moto = new Moto();
-        moto.setPlaca(dto.getPlaca());
+        moto.setPlaca(dto.getPlaca().trim().toUpperCase());
         moto.setModelo(dto.getModelo());
         moto.setCor(dto.getCor());
         moto.setStatus(StatusMoto.ALOCADA);
-        moto = motoRepo.save(moto);
-
+        moto = motoRepo.saveAndFlush(moto);
         // 4) criar a alocação ativa e marcar a vaga como OCUPADA
         Alocacao aloc = new Alocacao();
         aloc.setMoto(moto);

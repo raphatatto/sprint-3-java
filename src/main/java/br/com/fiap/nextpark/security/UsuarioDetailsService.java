@@ -9,22 +9,19 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UsuarioDetailsService implements UserDetailsService {
-
     private final UsuarioRepository repo;
-
-    public UsuarioDetailsService(UsuarioRepository repo) {
-        this.repo = repo;
-    }
+    public UsuarioDetailsService(UsuarioRepository repo) { this.repo = repo; }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         var u = repo.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
         return org.springframework.security.core.userdetails.User
                 .withUsername(u.getUsername())
                 .password(u.getPassword())
-                .roles(u.getRole().name().replace("ROLE_", "")) // ROLE_MANAGER -> MANAGER
-                .disabled(!u.isEnabled())
+                .roles(u.getRole().name().replace("ROLE_", ""))
+                .disabled(!u.isEnabled()) // mapeia seu 'S'/'N'
                 .build();
     }
 }

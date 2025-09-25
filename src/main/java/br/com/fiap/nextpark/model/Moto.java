@@ -22,12 +22,12 @@ import java.util.Set;
 public class Moto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @NotBlank
     @Size(min = 7, max = 8)
     @Pattern(regexp = "^[A-Z0-9-]{6,8}$", message = "Placa inválida")
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 10, unique = true    )
     private String placa;
 
     @Size(max = 60)
@@ -45,6 +45,7 @@ public class Moto {
 
     @OneToMany(mappedBy = "moto", cascade = CascadeType.ALL, orphanRemoval = false, fetch = FetchType.LAZY)
     private Set<Alocacao> alocacoes = new HashSet<>();
+
     @Override public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Moto)) return false;

@@ -9,6 +9,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class LocalizarResponseDTO {
     private String placa;
-    private String codigoVaga;
+    private String vagaCodigo;
     private LocalDateTime inicio;
 }

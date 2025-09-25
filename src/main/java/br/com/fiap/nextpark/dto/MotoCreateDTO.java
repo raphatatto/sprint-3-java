@@ -1,23 +1,31 @@
-// src/main/java/br/com/fiap/nextpark/dto/MotoCreateDTO.java
+// MotoCreateDTO.java
 package br.com.fiap.nextpark.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import jakarta.validation.constraints.Size;
+// import jakarta.validation.constraints.Pattern; // opcional
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class MotoCreateDTO {
 
     @NotBlank
+    // Opcional: validação de padrão (ajuste se quiser Mercosul estrito)
+    // @Pattern(regexp = "^[A-Z0-9-]{6,8}$", message = "Placa inválida")
+    @Size(min = 7, max = 10)
     private String placa;
 
     @NotBlank
+    @Size(max = 60)
     private String modelo;
 
+    @Size(max = 30)
     private String cor;
 
-    private String vagaCodigo;
+    // opcional (pode ser null): escolher vaga específica
+    private String codigoVaga;
 }
