@@ -1,157 +1,110 @@
-// src/main/java/br/com/fiap/nextpark/controller/MotoController.java
 package br.com.fiap.nextpark.controller;
 
-import br.com.fiap.nextpark.dto.MotoCreateDTO;
-import br.com.fiap.nextpark.model.Alocacao;
-import br.com.fiap.nextpark.model.Moto;
-import br.com.fiap.nextpark.model.StatusMoto;
-import br.com.fiap.nextpark.repository.AlocacaoRepository;
-import br.com.fiap.nextpark.repository.MotoRepository;
-import br.com.fiap.nextpark.repository.VagaRepository;
-import br.com.fiap.nextpark.security.ManagerPasswordGuard;
-import br.com.fiap.nextpark.service.CadastroMotoService;
-import jakarta.validation.Valid;
+import java.security.Principal;
+import java.util.List;
+
+import br.com.fiap.nextpark.model.enums.StatusMoto;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.util.Optional;
+import br.com.fiap.nextpark.model.entity.Moto;
+import br.com.fiap.nextpark.model.enums.StatusMoto;
+import br.com.fiap.nextpark.service.MotoService;
 
 @Controller
-@RequestMapping("/motos")
+@RequestMapping("/moto")
 public class MotoController {
 
-    private final CadastroMotoService cadastro;
-    private final VagaRepository vagaRepo;
-    private final MotoRepository motoRepo;
-    private final AlocacaoRepository alocRepo;
-    private final ManagerPasswordGuard guard;
+    private final MotoService motoService;
 
-    public MotoController(CadastroMotoService cadastro,
-                          VagaRepository vagaRepo,
-                          MotoRepository motoRepo,
-                          AlocacaoRepository alocRepo,
-                          ManagerPasswordGuard guard) {
-        this.cadastro = cadastro;
-        this.vagaRepo = vagaRepo;
-        this.motoRepo = motoRepo;
-        this.alocRepo = alocRepo;
-        this.guard = guard;
-    }
+    public MotoController(MotoService motoService) { this.motoService = motoService; }
 
-    // LISTAR
     @GetMapping
-    @PreAuthorize("hasAnyRole('OPERATOR','MANAGER')")
-    public String list(Model model) {
-        model.addAttribute("motos", motoRepo.findAll());
-        return "motos/list";
+    public String list(@RequestParam(value="q", required=false) String q,
+                       Principal principal,
+                       @RequestParam(value="all", required=false) Boolean all,
+                       Model model) {
+        boolean gerente = all != null && all; // não usado; segurança já filtra pelo service
+        // descobrir pelo Spring Security (ROLE):
+        gerente = org.springframework.security.core.context.SecurityContextHolder.getContext()
+                .getAuthentication().getAuthorities()
+                .stream().anyMatch(a -> a.getAuthority().equals("ROLE_GERENTE"));
+        List<Moto> motos = motoService.listarPara(principal.getName(), gerente, q);
+        model.addAttribute("motos", motos);
+        return "moto/list";
     }
 
-    @GetMapping("/novo")
-    @PreAuthorize("hasAnyRole('OPERATOR','MANAGER')")
-    public String formNovo(Model model) {
-        if (!model.containsAttribute("moto")) {
-            model.addAttribute("moto", new MotoCreateDTO());
-        }
-        model.addAttribute("vagas", vagaRepo.findAll());
-        return "motos/form";
+    @GetMapping("/nova")
+    public String nova(Model model) {
+        model.addAttribute("moto", new Moto());
+        model.addAttribute("status", StatusMoto.values());
+        return "moto/form";
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('OPERATOR','MANAGER')")
-    public String criar(@Valid @ModelAttribute("moto") MotoCreateDTO dto,
-                        BindingResult binding,
-                        Model model,
-                        RedirectAttributes ra) {
-        if (binding.hasErrors()) {
-            model.addAttribute("vagas", vagaRepo.findAll());
-            return "motos/form";
-        }
-        try {
-            cadastro.cadastrarEAlocar(dto);
-            ra.addFlashAttribute("ok", "Moto cadastrada e alocada com sucesso!");
-            return "redirect:/motos";
-        } catch (IllegalArgumentException e) {
-            binding.rejectValue("placa", "placa.jaCadastrada", e.getMessage());
-            model.addAttribute("vagas", vagaRepo.findAll());
-            return "motos/form";
-        }
+    public String criar(@ModelAttribute Moto moto, Principal principal, RedirectAttributes ra) {
+        motoService.criar(principal.getName(), moto);
+        ra.addFlashAttribute("msg","Moto criada!");
+        return "redirect:/moto";
     }
 
     @GetMapping("/{id}/editar")
-    public String formEditar(@PathVariable Long id, Model model, RedirectAttributes ra) {
-        Optional<Moto> opt = motoRepo.findById(id);
-        if (opt.isEmpty()) {
-            ra.addFlashAttribute("erro", "Moto não encontrada.");
-            return "redirect:/motos";
-        }
-        Moto m = opt.get();
-        MotoCreateDTO dto = new MotoCreateDTO();
-        dto.setPlaca(m.getPlaca());
-        dto.setModelo(m.getModelo());
-        dto.setCor(m.getCor());
-        model.addAttribute("moto", dto);
-        model.addAttribute("motoId", id);
-        model.addAttribute("vagas", vagaRepo.findAll());
-        return "motos/form";
+    public String editar(@PathVariable Long id, Model model) {
+        Moto m = motoService.listarPara("", true, null) // gambit só para pegar via repo? Melhor:
+                .stream().filter(x -> x.getId().equals(id)).findFirst()
+                .orElseThrow(); // se preferir injete o repo e busque direto.
+        model.addAttribute("moto", m);
+        model.addAttribute("status", StatusMoto.values());
+        return "moto/form";
     }
 
-    // ATUALIZAR (requer senha do gerente)
-    @PostMapping("/{id}/atualizar")
-    public String atualizar(@PathVariable Long id,
-                            @RequestParam String adminPass,
-                            @ModelAttribute("moto") MotoCreateDTO form,
-                            RedirectAttributes ra,
-                            Model model) {
-        if (!guard.isValid(adminPass)) {
-            ra.addFlashAttribute("erro", "Senha do gerente inválida.");
-            return "redirect:/motos/" + id + "/editar";
-        }
-        return motoRepo.findById(id).map(m -> {
-            // checar duplicidade (ignora a própria moto)
-            var existente = motoRepo.findByPlacaIgnoreCase(form.getPlaca())
-                    .filter(x -> x.getId() != m.getId());
-            if (existente.isPresent()) {
-                ra.addFlashAttribute("erro", "Essa placa já está cadastrada em outra moto.");
-                return "redirect:/motos/" + id + "/editar";
-            }
-            m.setPlaca(form.getPlaca());
-            m.setModelo(form.getModelo());
-            m.setCor(form.getCor());
-            motoRepo.save(m);
-            ra.addFlashAttribute("ok", "Moto atualizada.");
-            return "redirect:/motos";
-        }).orElseGet(() -> {
-            ra.addFlashAttribute("erro", "Moto não encontrada.");
-            return "redirect:/motos";
-        });
+    @PostMapping("/{id}")
+    public String atualizar(@PathVariable Long id, @ModelAttribute Moto src,
+                            Principal principal, RedirectAttributes ra) {
+        motoService.atualizarCliente(principal.getName(), id, src);
+        ra.addFlashAttribute("msg","Moto atualizada!");
+        return "redirect:/moto";
     }
 
-    @PostMapping("/{id}/excluir")
-    public String excluir(@PathVariable Long id,
-                          @RequestParam String adminPass,
-                          RedirectAttributes ra) {
-        if (!guard.isValid(adminPass)) {
-            ra.addFlashAttribute("erro", "Senha do gerente inválida.");
-            return "redirect:/motos";
-        }
-        return motoRepo.findById(id).map(m -> {
-            // Bloqueia exclusão se estiver alocada
-            boolean temAlocAtiva = alocRepo
-                    .existsByMotoIdAndAtiva(m.getId(), "S");
-            if (temAlocAtiva || m.getStatus() == StatusMoto.ALOCADA) {
-                ra.addFlashAttribute("erro", "Não é possível excluir moto alocada. Desaloque antes.");
-                return "redirect:/motos";
-            }
-            motoRepo.delete(m);
-            ra.addFlashAttribute("ok", "Moto excluída.");
-            return "redirect:/motos";
-        }).orElseGet(() -> {
-            ra.addFlashAttribute("erro", "Moto não encontrada.");
-            return "redirect:/motos";
-        });
+    @PostMapping("/{id}/delete")
+    public String deletar(@PathVariable Long id, Principal principal, RedirectAttributes ra) {
+        motoService.deletarCliente(principal.getName(), id);
+        ra.addFlashAttribute("msg","Moto excluída!");
+        return "redirect:/moto";
+    }
+
+    // ====== Ações de pátio: só GERENTE ======
+    @PreAuthorize("hasRole('GERENTE')")
+    @PostMapping("/{id}/desalocar")
+    public String desalocar(@PathVariable Long id, Principal principal, RedirectAttributes ra) {
+        motoService.desalocar(id, principal.getName());
+        ra.addFlashAttribute("msg","Moto desalocada!");
+        return "redirect:/moto";
+    }
+
+    @PreAuthorize("hasRole('GERENTE')")
+    @PostMapping("/{id}/alocar")
+    public String alocar(@PathVariable Long id, @RequestParam Long vagaId,
+                         Principal principal, RedirectAttributes ra) {
+        motoService.alocar(id, vagaId, principal.getName());
+        ra.addFlashAttribute("msg","Moto alocada!");
+        return "redirect:/moto";
+    }
+
+    @PreAuthorize("hasRole('GERENTE')")
+    @PostMapping("/{id}/transferir")
+    public String transferir(@PathVariable Long id, @RequestParam Long destinoId,
+                             Principal principal, RedirectAttributes ra) {
+        motoService.transferir(id, destinoId, principal.getName());
+        ra.addFlashAttribute("msg","Moto transferida!");
+        return "redirect:/moto";
+    }
+
+    @GetMapping("/{id}/historico")
+    public String historico(@PathVariable Long id, Model model) {
+        model.addAttribute("historico", motoService.historico(id));
+        return "moto/historico";
     }
 }

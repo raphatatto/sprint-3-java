@@ -1,76 +1,42 @@
 <!DOCTYPE html>
-<html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/springsecurity"
-      th:fragment="layout(content, title, active)">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="pt-br">
 <head>
     <meta charset="UTF-8"/>
-    <title th:text="${title} ?: 'NextPark'">NextPark</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <style>
-        :root { --bg:#0b0e11; --card:#151a21; --muted:#9aa4af; --accent:#3b82f6; --danger:#ef4444; --ok:#10b981; }
-        body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu; background:var(--bg); color:#e5e7eb; }
-        header, footer { background:#0e131a; padding:14px 20px; }
-        a { color:#cbd5e1; text-decoration:none; }
-        nav a { margin-right:14px; padding:6px 10px; border-radius:8px; }
-        nav a.active, nav a:hover { background:var(--card); }
-        .container { max-width:1100px; margin:24px auto; padding:0 16px; }
-        .card { background:var(--card); border-radius:14px; padding:18px; box-shadow:0 4px 20px #0003; }
-        .btn { display:inline-block; padding:8px 12px; border-radius:10px; background:var(--accent); color:white; border:0; cursor:pointer; }
-        .btn.danger { background:var(--danger); }
-        .btn.ok { background:var(--ok); }
-        table { width:100%; border-collapse:collapse; }
-        th,td { padding:10px; border-bottom:1px solid #223; }
-        form.inline { display:inline; }
-        .right { float:right; }
-        input, select { padding:8px 10px; border-radius:10px; border:1px solid #253; background:#0f141b; color:#e5e7eb; }
-        label { display:block; margin:8px 0; }
-        .alert {margin:12px 0; padding:10px 12px; border-radius:10px;}
-        .alert.ok {background:#0f3; color:#072;}
-        .alert.danger {background:#fca5a5; color:#58151a;}
-        .err {display:block; color:#fca5a5; margin-top:4px;}
-    </style>
+    <title th:text="${pageTitle} ?: 'NextPark'">NextPark</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
 </head>
 <body>
-<header>
-    <div class="container">
-        <strong>NextPark</strong>
-        <nav style="margin-top:8px">
-            <a th:href="@{/}" th:classappend="${active}=='home' ? ' active'">Home</a>
-
-            <!-- OPERATOR/MANAGER -->
-            <a th:href="@{/localizar}" th:classappend="${active}=='localizar' ? ' active'"
-               sec:authorize="hasAnyRole('OPERATOR','MANAGER')">Localizar</a>
-            <a th:href="@{/motos/novo}" th:classappend="${active}=='motos' ? ' active'"
-               sec:authorize="hasAnyRole('OPERATOR','MANAGER')">Cadastrar Moto</a>
-            <a th:href="@{/alocacoes}" th:classappend="${active}=='alocacoes' ? ' active'"
-               sec:authorize="hasAnyRole('OPERATOR','MANAGER')">Alocações</a>
-
-            <!-- Somente MANAGER -->
-            <a th:href="@{/vagas}" th:classappend="${active}=='vagas' ? ' active'"
-               sec:authorize="hasRole('MANAGER')">Vagas</a>
-
-            <span class="right">
-        <a th:href="@{/login}" sec:authorize="!isAuthenticated()">Login</a>
-        <a th:href="@{/auth/registro}" sec:authorize="!isAuthenticated()">Registrar</a>
-        <span sec:authorize="isAuthenticated()">
-          Olá, <span sec:authentication="name"></span> |
-          <a th:href="@{/logout}">Sair</a>
-        </span>
-      </span>
-        </nav>
-
+<header class="topbar">
+    <div class="brand">NextPark</div>
+    <nav>
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/moto}">Motos</a>
+        <a th:href="@{/vaga}" sec:authorize="hasRole('GERENTE')">Vagas</a>
+        <a th:href="@{/usuario/novo}" sec:authorize="hasRole('GERENTE')">Novo Usuário</a>
+    </nav>
+    <div class="auth">
+    <span sec:authorize="isAuthenticated()">
+      Olá, <b sec:authentication="name">user</b> |
+    </span>
+        <a th:href="@{/login}" sec:authorize="isAnonymous()">Entrar</a>
+        <a th:href="@{/register}" sec:authorize="isAnonymous()">Registrar</a>
+        <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()" style="display:inline">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button class="btn-outline" type="submit">Sair</button>
+        </form>
+    </div>
 </header>
 
-<main class="container">
-    <div th:if="${ok}" class="alert ok" th:text="${ok}"></div>
-    <div th:if="${erro}" class="alert danger" th:text="${erro}"></div>
-    <div class="card">
+<!-- FRAGMENTO COM ASSINATURA (NOMES): -->
+<div th:fragment="shell(content, ptitle)">
+    <main class="container">
+        <h1 th:text="${ptitle}">Título</h1>
+        <!-- 'content' é um FRAGMENTO passado por parâmetro -->
         <div th:insert="${content}"></div>
-    </div>
-</main>
-
-<footer>
-    <div class="container">© NextPark</div>
-</footer>
+    </main>
+    <footer class="footer">© NextPark</footer>
+</div>
 </body>
 </html>

@@ -1,12 +1,11 @@
 package br.com.fiap.nextpark.repository;
 
-import br.com.fiap.nextpark.model.StatusVaga;
-import br.com.fiap.nextpark.model.Vaga;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import br.com.fiap.nextpark.model.entity.Vaga;
+import br.com.fiap.nextpark.model.enums.StatusVaga;
 
-import java.util.Optional;
-
-public interface VagaRepository extends JpaRepository <Vaga, Long> {
-    Optional<Vaga> findByCodigoIgnoreCase(String codigo);
-    Optional<Vaga> findFirstByStatusOrderByCodigoAsc(StatusVaga status);
+public interface VagaRepository extends JpaRepository<Vaga, Long> {
+    List<Vaga> findByStatus(StatusVaga status);
+    boolean existsByCodigoIgnoreCase(String codigo);
 }

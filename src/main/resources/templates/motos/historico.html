@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br"
+      th:replace="fragments/_layout :: body(~{::content}, 'Histórico da Moto')">
+<body>
+<div th:fragment="content">
+    <table class="table">
+        <thead>
+        <tr><th>Data/Hora</th><th>Ação</th><th>Origem</th><th>Destino</th><th>Usuário</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="h : ${historico}">
+            <td th:text="${#temporals.format(h.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2025</td>
+            <td th:text="${h.acao}">ALOCAR</td>
+            <td th:text="${h.origem != null ? h.origem.codigo : '-'}">A01</td>
+            <td th:text="${h.destino != null ? h.destino.codigo : '-'}">B02</td>
+            <td th:text="${h.usuario}">gerente</td>
+        </tr>
+        </tbody>
+    </table>
+    <a th:href="@{/moto}" class="btn-outline">Voltar</a>
+</div>
+</body>
+</html>
