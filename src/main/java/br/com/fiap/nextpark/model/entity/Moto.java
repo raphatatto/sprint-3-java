@@ -28,7 +28,7 @@ public class Moto {
     @Column(name="OWNER_USER_ID", nullable=false)
     private Long ownerUserId;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="VAGA_ID")
     private Vaga vaga;
 
