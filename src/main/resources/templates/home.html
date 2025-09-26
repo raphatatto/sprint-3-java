@@ -1,24 +1,22 @@
 <!DOCTYPE html>
-<html th:replace="fragments/_layout :: shell(content = ~{::content}, ptitle = 'Início')"
-      xmlns:th="http://www.w3.org/1999/xhtml">
+<html th:replace="~{fragments/_layout :: shell(content=~{::content}, ptitle='Início')}"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
-<div th:fragment="content" class="grid two">
+<div th:fragment="content">
     <div class="card">
         <h3>Cliente</h3>
         <ul>
-            <li>Cadastrar moto</li>
-            <li>Pesquisar / ver minhas motos</li>
-            <li>Editar/Excluir minhas motos</li>
-            <li>Ver histórico das minhas motos</li>
-            <li>Ver onde minha moto está</li>
+            <li><a th:href="@{/moto/nova}">Cadastrar moto</a></li>
+            <li><a th:href="@{/moto}">Minhas motos</a></li>
         </ul>
     </div>
-    <div class="card">
+
+    <div class="card" sec:authorize="hasRole('GERENTE')">
         <h3>Gerente</h3>
         <ul>
-            <li>Gerenciar vagas (criar/editar/excluir)</li>
-            <li>Alocar / Desalocar / Transferir motos</li>
-            <li>Ver todas as motos e desalocadas</li>
+            <li><a th:href="@{/vaga}">Gerenciar vagas</a></li>
+            <li><a th:href="@{/moto}">Alocar / Transferir</a></li>
         </ul>
     </div>
 </div>

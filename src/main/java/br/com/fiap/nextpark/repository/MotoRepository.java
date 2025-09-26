@@ -29,7 +29,7 @@ public interface MotoRepository extends JpaRepository<Moto, Long> {
          order by m.id desc
          """)
     List<Moto> searchMine(Long ownerId, String q);
-
+    boolean existsByPlacaIgnoreCase(String placa);
     boolean existsByIdAndOwnerUserId(Long id, Long ownerId);
 
     // se sua Moto tem ManyToOne Vaga, esse método funciona:

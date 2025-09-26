@@ -4,6 +4,13 @@ spring:
     url: jdbc:oracle:thin:@oracle.fiap.com.br:1521/ORCL
     username: ${DB_USER}
     password: ${DB_PASS}
+  web:
+    resources:
+      add-mappings: true
+      static-locations: classpath:/static/
+  logging:
+    level:
+      org.springframework.web.servlet.resource: TRACE
 
   jpa:
     hibernate:
@@ -24,3 +31,5 @@ spring:
 server:
   error:
     include-message: always
+
+

@@ -43,22 +43,26 @@ public class MotoService {
     @Transactional
     public Moto criar(String username, Moto moto) {
         Long ownerId = usuarioService.requireByUsername(username).getId();
-        moto.setOwnerUserId(ownerId);                 // <<<<<<<<<<<<<< CORREÇÃO
+        moto.setOwnerUserId(ownerId);
         if (moto.getStatus() == null) moto.setStatus(StatusMoto.DESALOCADA);
         moto.setVaga(null);
+        if (motoRepo.existsByPlacaIgnoreCase(moto.getPlaca())) {
+            throw new IllegalArgumentException("Placa já cadastrada");
+        }
         return motoRepo.save(moto);
+
     }
 
     @Transactional
     public Moto atualizarCliente(String username, Long id, Moto src) {
         Moto m = motoRepo.findById(id).orElseThrow();
         Long requesterId = usuarioService.requireByUsername(username).getId();
-        if (!m.getOwnerUserId().equals(requesterId))  // <<<<<<<<<<<<<< CORREÇÃO
+        if (!m.getOwnerUserId().equals(requesterId))
             throw new AccessDeniedException("Você só pode editar suas motos");
 
         m.setPlaca(src.getPlaca());
         m.setModelo(src.getModelo());
-        m.setStatus(src.getStatus()); // não mexe na vaga aqui
+        m.setStatus(src.getStatus());
         return m;
     }
 

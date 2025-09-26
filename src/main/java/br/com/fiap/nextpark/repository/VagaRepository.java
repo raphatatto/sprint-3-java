@@ -8,4 +8,5 @@ import br.com.fiap.nextpark.model.enums.StatusVaga;
 public interface VagaRepository extends JpaRepository<Vaga, Long> {
     List<Vaga> findByStatus(StatusVaga status);
     boolean existsByCodigoIgnoreCase(String codigo);
+
 }

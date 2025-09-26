@@ -27,6 +27,8 @@ public class VagaService {
     @Transactional
     public Vaga salvar(Vaga v) {
         if (v.getStatus() == null) v.setStatus(StatusVaga.LIVRE);
+        if (v.getId() == null && vagaRepo.existsByCodigoIgnoreCase(v.getCodigo()))
+            throw new IllegalArgumentException("Código de vaga já cadastrado");
         return vagaRepo.save(v);
     }
 
