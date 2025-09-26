@@ -1,19 +1,22 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="pt-br"
-      th:replace="fragments/_layout :: body(~{::content}, 'Registrar')">
+<html th:replace="~{fragments/_layout :: shell(content=~{::content}, ptitle='Registrar')}"
+      xmlns:th="http://www.thymeleaf.org">
 <body>
-<div th:fragment="content">
-    <form th:action="@{/register}" method="post" class="card">
-        <h2>Criar conta (Cliente)</h2>
-        <label>Usuário
-            <input type="text" th:field="*{usuario.username}" name="username" required/>
-        </label>
-        <label>Senha
-            <input type="password" th:field="*{usuario.password}" name="password" required/>
-        </label>
+<div th:fragment="content" class="card">
+    <form th:action="@{/register}" method="post">
+        <div class="row">
+            <label>Usuário</label>
+            <input type="text" name="username" required>
+        </div>
+        <div class="row">
+            <label>Senha</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <!-- CSRF obrigatório com Spring Security -->
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-        <button type="submit">Registrar</button>
-        <p>Já tem conta? <a th:href="@{/login}">Entrar</a></p>
+
+        <button class="btn" type="submit">Criar conta</button>
     </form>
 </div>
 </body>

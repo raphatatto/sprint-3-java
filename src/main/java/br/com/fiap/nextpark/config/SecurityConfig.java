@@ -14,20 +14,29 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    // SecurityConfig.java
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**","/js/**","/images/**","/login","/register").permitAll()
-                        .requestMatchers("/usuario/**").hasRole("GERENTE")
+                        .requestMatchers("/login", "/register", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/register").permitAll() // garante POST
                         .requestMatchers("/vaga/**").hasRole("GERENTE")
                         .anyRequest().authenticated()
                 )
-                .formLogin(f -> f.loginPage("/login").defaultSuccessUrl("/", true).permitAll())
+                .formLogin(f -> f
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/", true)
+                        .permitAll()
+                )
                 .logout(l -> l.logoutUrl("/logout").logoutSuccessUrl("/login?logout").permitAll())
-                .csrf(Customizer.withDefaults());
+                .csrf(csrf -> csrf  // mantenha CSRF ligado; é mais seguro
+                        // se você usa endpoints JSON/API, ignore-os aqui
+                        .ignoringRequestMatchers("/api/**")
+                );
         return http.build();
     }
+
 
     @Bean
     PasswordEncoder passwordEncoder() {
